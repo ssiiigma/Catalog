@@ -1,53 +1,37 @@
+using System.Text;
 using Catalog.Application;
 using Catalog.Application.Interfaces;
 using Catalog.Application.Services;
 using Catalog.Infrastructure;
 using Catalog.Infrastructure.Services;
-using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// ========== CONFIGURATION ==========
 var configuration = builder.Configuration;
-var redisConnectionString = configuration.GetConnectionString("Redis");
+var environment = builder.Environment;
 
-// ========== DEPENDENCY INJECTION ==========
-
-// Infrastructure Layer
+// ================== LAYERS ==================
 builder.Services.AddInfrastructure(configuration);
-
-// Application Layer
 builder.Services.AddApplication();
 
-// API Layer services
+// API services
 builder.Services.AddScoped<IProductService, ProductService>();
 
-// CACHE CONFIGURATION - КРИТИЧНО ВАЖЛИВО
-if (!string.IsNullOrEmpty(redisConnectionString))
+// ================== CACHE ==================
+var redisConnectionString = configuration.GetConnectionString("Redis");
+
+if (!string.IsNullOrWhiteSpace(redisConnectionString))
 {
-    Console.WriteLine("✅ Redis cache configured");
-    
-    // OPTION 1: Use StackExchange.Redis directly
-    builder.Services.AddSingleton<IConnectionMultiplexer>(sp => 
-    {
-        try
-        {
-            var connection = ConnectionMultiplexer.Connect(redisConnectionString);
-            Console.WriteLine($"Redis connected: {connection.IsConnected}");
-            return connection;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"❌ Redis connection failed: {ex.Message}");
-            throw;
-        }
-    });
-    
-    // Використовуємо RedisCacheService ТІЛЬКИ якщо Redis доступний
+    Console.WriteLine("✅ Redis configured");
+
+    builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
+        ConnectionMultiplexer.Connect(redisConnectionString));
+
     builder.Services.AddSingleton<ICacheService, RedisCacheService>();
-    
-    // Додатково для сумісності
+
     builder.Services.AddStackExchangeRedisCache(options =>
     {
         options.Configuration = redisConnectionString;
@@ -56,128 +40,163 @@ if (!string.IsNullOrEmpty(redisConnectionString))
 }
 else
 {
-    Console.WriteLine("⚠️ Using in-memory cache (Redis not configured)");
-    
-    // OPTION 2: Use in-memory distributed cache for development
+    Console.WriteLine("⚠️ Redis not configured — using InMemory cache");
+
     builder.Services.AddDistributedMemoryCache();
     builder.Services.AddSingleton<ICacheService, DistributedCacheService>();
 }
 
-// ========== API SERVICES ==========
+// ================== AUTH / JWT ==================
+var jwtSettings = configuration.GetSection("JwtSettings");
+var jwtKey = jwtSettings["Key"];
+
+if (string.IsNullOrWhiteSpace(jwtKey) || jwtKey.Length < 32)
+{
+    if (environment.IsDevelopment())
+    {
+        jwtKey = "DevelopmentSuperSecretKey_ChangeInProduction123!";
+        Console.WriteLine("⚠️ Using DEVELOPMENT JWT key");
+    }
+    else
+    {
+        throw new InvalidOperationException("JWT Key is not configured");
+    }
+}
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings["Issuer"] ?? "catalog-api",
+            ValidAudience = jwtSettings["Audience"] ?? "catalog-client",
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtKey)),
+            ClockSkew = TimeSpan.Zero
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = ctx =>
+            {
+                if (ctx.Exception is SecurityTokenExpiredException)
+                    ctx.Response.Headers["Token-Expired"] = "true";
+                return Task.CompletedTask;
+            }
+        };
+    });
+
+// ================== MVC / SWAGGER ==================
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
-// Add logging
-builder.Services.AddLogging();
-
-// CORS
-builder.Services.AddCors(options =>
+builder.Services.AddSwaggerGen(c =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    c.SwaggerDoc("v1", new OpenApiInfo
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+        Title = "Catalog API",
+        Version = "v1",
+        Description = "Catalog Management API"
+    });
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Bearer {your JWT token}"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
     });
 });
 
-// ========== BUILD APP ==========
+// ================== CORS ==================
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
+
+// ================== HEALTH (SAFE) ==================
+// ❗ DbContextCheck прибраний — щоб НЕ тригерити EF edge-case
+var connectionString = configuration.GetConnectionString("DefaultConnection");
+if (!string.IsNullOrEmpty(connectionString))
+{
+    builder.Services.AddHealthChecks()
+        .AddMySql(connectionString, name: "mysql");
+}
+
+// ================== BUILD ==================
 var app = builder.Build();
 
-// ========== MIDDLEWARE PIPELINE ==========
-if (app.Environment.IsDevelopment())
+// ================== PIPELINE ==================
+if (environment.IsDevelopment())
 {
+    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.UseDeveloperExceptionPage();
 }
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
+// ================== ENDPOINTS ==================
 app.MapGet("/", () => Results.Redirect("/swagger"));
 
-app.MapGet("/api", () => Results.Ok(new
+app.MapGet("/api/test", () => Results.Ok(new
 {
-    Message = "Catalog API",
-    Version = "1.0.0",
-    Endpoints = new[]
-    {
-        "/api/products - CRUD for products",
-        "/api/categories - Product categories",
-        "/swagger - API documentation",
-        "/health - Health check",
-        "/api/cache-test - Test Redis cache"
-    },
-    Timestamp = DateTime.UtcNow
-}));
-
-// ========== HEALTH CHECKS ==========
-app.MapGet("/health", async (IServiceProvider services, CancellationToken ct) =>
-{
-    try
-    {
-        // Перевірка кешу
-        var cache = services.GetRequiredService<ICacheService>();
-        await cache.SetAsync("health_test", "ok", TimeSpan.FromSeconds(5), ct);
-        var cacheResult = await cache.GetAsync<string>("health_test", ct);
-        
-        return Results.Ok(new 
-        { 
-            Status = "Healthy",
-            Cache = cacheResult == "ok" ? "Working" : "Not working",
-            CacheType = cache.GetType().Name,
-            Timestamp = DateTime.UtcNow,
-            Environment = app.Environment.EnvironmentName
-        });
-    }
-    catch (Exception ex)
-    {
-        return Results.Problem(
-            title: "Unhealthy",
-            detail: ex.Message,
-            statusCode: StatusCodes.Status503ServiceUnavailable);
-    }
-});
-
-app.MapGet("/api/test", () => Results.Ok(new 
-{ 
     Message = "Catalog API is running",
-    Version = "1.0.0",
+    Environment = environment.EnvironmentName,
     Timestamp = DateTime.UtcNow
-}));
+})).AllowAnonymous();
 
 app.MapGet("/api/cache-test", async (ICacheService cache, CancellationToken ct) =>
 {
-    var testKey = "cache_test_key";
-    var testValue = new { Message = "Hello from cache", Time = DateTime.UtcNow };
-    
-    // Set cache
-    await cache.SetAsync(testKey, testValue, TimeSpan.FromMinutes(1), ct);
-    
-    // Get cache
-    var cachedValue = await cache.GetAsync<object>(testKey, ct);
-    
-    // Clear test cache
-    await cache.RemoveAsync(testKey, ct);
-    
+    const string key = "cache_test";
+    await cache.SetAsync(key, "ok", TimeSpan.FromSeconds(10), ct);
+    var value = await cache.GetAsync<string>(key, ct);
+
     return Results.Ok(new
     {
-        SetValue = testValue,
-        RetrievedValue = cachedValue,
-        CacheWorking = cachedValue != null,
-        CacheType = cache.GetType().Name
+        CacheType = cache.GetType().Name,
+        Result = value
     });
-});
+}).AllowAnonymous();
 
-Console.WriteLine($"Environment: {app.Environment.EnvironmentName}");
-Console.WriteLine($"Redis configured: {!string.IsNullOrEmpty(redisConnectionString)}");
+app.MapHealthChecks("/health");
+
+Console.WriteLine($"🚀 Catalog API started ({environment.EnvironmentName})");
 
 app.Run();
+
+// для тестів
+public partial class Program { }
+
 
 
 

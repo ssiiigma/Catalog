@@ -19,15 +19,39 @@ public class ProductRepository : IProductRepository
         _logger = logger;
     }
     
+    public async Task<IEnumerable<Product>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            _logger.LogDebug("Getting all products");
+        
+            return await _context.Products
+                .Include(p => p.Category)
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting all products");
+            throw;
+        }
+    }
+
     public async Task<Product?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
             _logger.LogDebug("Getting product by ID: {Id}", id);
-            
+        
             return await _context.Products
-                .Include(p => p.Category)
+                .Include(p => p.Category)  
                 .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
         }
         catch (OperationCanceledException)
@@ -37,28 +61,6 @@ public class ProductRepository : IProductRepository
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting product by ID: {Id}", id);
-            throw;
-        }
-    }
-    
-    public async Task<IEnumerable<Product>> GetAllAsync(CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            _logger.LogDebug("Getting all products");
-            
-            return await _context.Products
-                .Include(p => p.Category)
-                .ToListAsync(cancellationToken);
-        }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting all products");
             throw;
         }
     }

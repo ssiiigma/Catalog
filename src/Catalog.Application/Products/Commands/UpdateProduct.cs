@@ -1,5 +1,6 @@
 ﻿using Catalog.Application.Interfaces;
 using Catalog.Core.Common;
+using Catalog.Core.Entities;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -81,12 +82,19 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand>
         }
         
         var price = new Money(request.PriceAmount, request.PriceCurrency);
+
+        var categoryId = await GetOrCreateCategoryIdAsync(
+            request.Category,
+            cancellationToken);
+
         product.Update(
             request.Name,
             price,
-            request.Category,
+            categoryId,
             request.Sku,
             request.Description);
+
+
             
         product.SetActive(request.IsActive);
         
@@ -100,4 +108,26 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand>
         await _cache.RemoveAsync($"product_{request.Id}", cancellationToken);
         await _cache.RemoveAsync("products_", cancellationToken);
     }
+    
+    private async Task<Guid> GetOrCreateCategoryIdAsync(
+        string categoryName,
+        CancellationToken cancellationToken)
+    {
+        var category = await _context.Categories
+            .FirstOrDefaultAsync(c => c.Name == categoryName, cancellationToken);
+
+        if (category != null)
+            return category.Id;
+
+        var newCategory = new Category
+        {
+            Id = Guid.NewGuid(),
+            Name = categoryName
+        };
+
+        _context.Categories.Add(newCategory);
+
+        return newCategory.Id;
+    }
+
 }

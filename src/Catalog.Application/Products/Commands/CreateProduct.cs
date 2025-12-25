@@ -66,27 +66,43 @@ public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand,
     {
         var skuExists = await _context.Products
             .AnyAsync(p => p.Sku == request.Sku, cancellationToken);
-            
+        
         if (skuExists)
         {
             throw new InvalidOperationException($"Product with SKU '{request.Sku}' already exists.");
         }
-        
+    
+        var categoryId = await GetOrCreateCategoryIdAsync(request.Category, cancellationToken);
+    
         var price = new Money(request.PriceAmount, request.PriceCurrency);
-        
+    
         var product = new Product(
-            request.Name,
-            price,
-            request.StockQuantity,
-            request.Category,
-            request.Sku,
-            request.Description);
-        
+            name: request.Name,
+            price: price,
+            stockQuantity: request.StockQuantity,
+            categoryId: categoryId,
+            sku: request.Sku,
+            description: request.Description);
+
+    
         await _context.Products.AddAsync(product, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
-        
+    
         await _cacheInvalidation.InvalidateProductsListCache(cancellationToken);
-        
+    
         return product.Id;
+    }
+    
+    private async Task<Guid> GetOrCreateCategoryIdAsync(string categoryName, CancellationToken cancellationToken)
+    {
+        var category = await _context.Categories
+            .FirstOrDefaultAsync(c => c.Name == categoryName, cancellationToken);
+    
+        if (category != null)
+        {
+            return category.Id;
+        }
+    
+        return Guid.NewGuid();
     }
 }

@@ -1,44 +1,58 @@
 ﻿using Catalog.Application.Interfaces;
 using Catalog.Core.Common;
 using Catalog.Core.Entities;
-using Catalog.Infrastructure.Persistence.Configurations;
 using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Infrastructure.Persistence;
 
-public class ApplicationDbContext : DbContext, IApplicationDbContext
+public class ApplicationDbContext : DbContext, IApplicationDbContext 
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) 
-        : base(options) { }
+        : base(options)
+    {
+    }
     
     public DbSet<Product> Products => Set<Product>();
+    public DbSet<Category> Categories => Set<Category>();
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfiguration(new ProductConfiguration());
         base.OnModelCreating(modelBuilder);
-    }
-    
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        var entries = ChangeTracker.Entries()
-            .Where(e => e.Entity is BaseEntity && 
-                        (e.State == EntityState.Modified || e.State == EntityState.Added));
         
-        foreach (var entityEntry in entries)
+        
+        // Product
+        modelBuilder.Entity<Product>(entity =>
         {
-            var entity = (BaseEntity)entityEntry.Entity;
+            entity.HasKey(p => p.Id);
             
-            if (entityEntry.State == EntityState.Added)
-            {
-                entity.CreatedAt = DateTime.UtcNow;
-            }
-            else if (entityEntry.State == EntityState.Modified)
-            {
-                entity.UpdateTimestamps();
-            }
-        }
+            
+            entity.Property(p => p.Name).IsRequired().HasMaxLength(200);
+            entity.Property(p => p.Description).HasMaxLength(1000);
+            entity.Property(p => p.Sku).IsRequired().HasMaxLength(50);
+            entity.Property(p => p.Price).HasPrecision(18, 2);
+            entity.Property(p => p.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(p => p.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            
+            // Зв'язок з Category
+            entity.HasOne(p => p.Category)
+                .WithMany(c => c.Products)
+                .HasForeignKey(p => p.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            entity.HasIndex(p => p.Sku).IsUnique();
+        });
         
-        return await base.SaveChangesAsync(cancellationToken);
+        // Category
+        modelBuilder.Entity<Category>(entity =>
+        {
+            entity.HasKey(c => c.Id);
+            
+            entity.Property(c => c.Name).IsRequired().HasMaxLength(100);
+            entity.Property(c => c.Description).HasMaxLength(500);
+            entity.Property(c => c.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(c => c.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            
+            entity.HasIndex(c => c.Name).IsUnique();
+        });
     }
 }

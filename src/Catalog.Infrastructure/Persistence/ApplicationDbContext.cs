@@ -19,12 +19,9 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     {
         base.OnModelCreating(modelBuilder);
         
-        
-        // Product
         modelBuilder.Entity<Product>(entity =>
         {
             entity.HasKey(p => p.Id);
-            
             
             entity.Property(p => p.Name).IsRequired().HasMaxLength(200);
             entity.Property(p => p.Description).HasMaxLength(1000);
@@ -33,7 +30,6 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             entity.Property(p => p.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(p => p.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
             
-            // Зв'язок з Category
             entity.HasOne(p => p.Category)
                 .WithMany(c => c.Products)
                 .HasForeignKey(p => p.CategoryId)
@@ -42,7 +38,6 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             entity.HasIndex(p => p.Sku).IsUnique();
         });
         
-        // Category
         modelBuilder.Entity<Category>(entity =>
         {
             entity.HasKey(c => c.Id);

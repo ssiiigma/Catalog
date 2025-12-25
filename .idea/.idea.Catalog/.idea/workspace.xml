@@ -238,15 +238,8 @@
       <change afterPath="$PROJECT_DIR$/../miniBooking/miniBooking.Infrastructure/miniBooking.Infrastructure.csproj" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../miniBooking/miniBooking.sln" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Catalog/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Catalog/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Catalog.sln.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/Catalog.sln.DotSettings.user" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Catalog.API/Catalog.API.http" beforeDir="false" afterPath="$PROJECT_DIR$/src/Catalog.API/Catalog.API.http" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Catalog.API/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Catalog.API/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Catalog.Application/Interfaces/IApplicationDbContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Catalog.Application/Interfaces/IApplicationDbContext.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Catalog.Application/Products/Commands/CreateProduct.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Catalog.Application/Products/Commands/CreateProduct.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Catalog.Application/Products/Commands/UpdateProduct.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Catalog.Application/Products/Commands/UpdateProduct.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Catalog.Core/Entities/Product.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Catalog.Core/Entities/Product.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Catalog.Infrastructure/Persistence/ApplicationDbContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Catalog.Infrastructure/Persistence/ApplicationDbContext.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Catalog.Infrastructure/Repositories/ProductRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Catalog.Infrastructure/Repositories/ProductRepository.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/Catalog.UnitTests/ProductTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Catalog.UnitTests/ProductTests.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -278,7 +271,6 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/ce37be1a06b16c6faa02038d2cc477dd3bca5b217ceeb41c5f2ad45c1bf9/ServiceProvider.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/Catalog.API/Controllers/AuthController.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/Catalog.API/Controllers/ProductsController.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/Asus/RiderProjects/Catalog/src/Catalog.API/appsettings.json" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/Catalog.Application/Common/Behaviors/LoggingBehavior.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/Catalog.Application/Common/Behaviors/ValidationBehavior.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/Catalog.Application/Common/Models/PaginatedResult.cs" root0="FORCE_HIGHLIGHTING" />
@@ -311,6 +303,10 @@
     <setting file="file://$PROJECT_DIR$/tests/Catalog.UnitTests/ProductTests.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/tests/Catalog.UnitTests/ValidationTests.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
@@ -326,22 +322,22 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    ".NET Launch Settings Profile.Catalog.API: http.executor": "Debug",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;.NET Launch Settings Profile.Catalog.API: http.executor&quot;: &quot;Debug&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected=".NET Launch Settings Profile.Catalog.API: http">
     <configuration name="Catalog.API: http" type="LaunchSettings" factoryName=".NET Launch Settings Profile">
       <option name="LAUNCH_PROFILE_PROJECT_FILE_PATH" value="$PROJECT_DIR$/src/Catalog.API/Catalog.API.csproj" />
@@ -386,7 +382,8 @@
       <workItem from="1766527859007" duration="3752000" />
       <workItem from="1766589970108" duration="4039000" />
       <workItem from="1766605010384" duration="10993000" />
-      <workItem from="1766656236209" duration="12807000" />
+      <workItem from="1766656236209" duration="13174000" />
+      <workItem from="1766672564070" duration="327000" />
     </task>
     <task id="LOCAL-00001" summary="Initial test1 commit">
       <option name="closed" value="true" />

@@ -13,19 +13,16 @@ var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 var environment = builder.Environment;
 
-// ================== LAYERS ==================
 builder.Services.AddInfrastructure(configuration);
 builder.Services.AddApplication();
 
-// API services
 builder.Services.AddScoped<IProductService, ProductService>();
 
-// ================== CACHE ==================
 var redisConnectionString = configuration.GetConnectionString("Redis");
 
 if (!string.IsNullOrWhiteSpace(redisConnectionString))
 {
-    Console.WriteLine("✅ Redis configured");
+    Console.WriteLine("Redis configured");
 
     builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
         ConnectionMultiplexer.Connect(redisConnectionString));
@@ -40,13 +37,12 @@ if (!string.IsNullOrWhiteSpace(redisConnectionString))
 }
 else
 {
-    Console.WriteLine("⚠️ Redis not configured — using InMemory cache");
+    Console.WriteLine("Redis not configured — using InMemory cache");
 
     builder.Services.AddDistributedMemoryCache();
     builder.Services.AddSingleton<ICacheService, DistributedCacheService>();
 }
 
-// ================== AUTH / JWT ==================
 var jwtSettings = configuration.GetSection("JwtSettings");
 var jwtKey = jwtSettings["Key"];
 
@@ -55,7 +51,7 @@ if (string.IsNullOrWhiteSpace(jwtKey) || jwtKey.Length < 32)
     if (environment.IsDevelopment())
     {
         jwtKey = "DevelopmentSuperSecretKey_ChangeInProduction123!";
-        Console.WriteLine("⚠️ Using DEVELOPMENT JWT key");
+        Console.WriteLine("Using DEVELOPMENT JWT key");
     }
     else
     {
@@ -90,7 +86,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-// ================== MVC / SWAGGER ==================
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
@@ -129,7 +124,6 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// ================== CORS ==================
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -138,8 +132,6 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod());
 });
 
-// ================== HEALTH (SAFE) ==================
-// ❗ DbContextCheck прибраний — щоб НЕ тригерити EF edge-case
 var connectionString = configuration.GetConnectionString("DefaultConnection");
 if (!string.IsNullOrEmpty(connectionString))
 {
@@ -147,10 +139,8 @@ if (!string.IsNullOrEmpty(connectionString))
         .AddMySql(connectionString, name: "mysql");
 }
 
-// ================== BUILD ==================
 var app = builder.Build();
 
-// ================== PIPELINE ==================
 if (environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -165,7 +155,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// ================== ENDPOINTS ==================
 app.MapGet("/", () => Results.Redirect("/swagger"));
 
 app.MapGet("/api/test", () => Results.Ok(new
@@ -190,11 +179,10 @@ app.MapGet("/api/cache-test", async (ICacheService cache, CancellationToken ct) 
 
 app.MapHealthChecks("/health");
 
-Console.WriteLine($"🚀 Catalog API started ({environment.EnvironmentName})");
+Console.WriteLine($"Catalog API started ({environment.EnvironmentName})");
 
 app.Run();
 
-// для тестів
 public partial class Program { }
 
 

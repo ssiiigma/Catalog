@@ -154,7 +154,6 @@ public class ProductTests
             .WithMessage("*sku*");
     }
 
-    // ===== Helper =====
     private Product CreateValidProduct()
     {
         return new Product(

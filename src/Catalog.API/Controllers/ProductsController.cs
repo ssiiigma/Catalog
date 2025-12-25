@@ -20,13 +20,13 @@ public class ProductsController : ControllerBase
     }
     
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Product>>> GetProducts(CancellationToken cancellationToken)
+    public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
     {
         _logger.LogInformation("Getting all products");
         
         try
         {
-            var products = await _productService.GetProductsAsync(cancellationToken);
+            var products = await _productService.GetProductsAsync();
             return Ok(products);
         }
         catch (Exception ex)

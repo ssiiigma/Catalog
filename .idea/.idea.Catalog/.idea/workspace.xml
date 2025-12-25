@@ -238,9 +238,11 @@
       <change afterPath="$PROJECT_DIR$/../miniBooking/miniBooking.Infrastructure/miniBooking.Infrastructure.csproj" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../miniBooking/miniBooking.sln" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Catalog/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Catalog/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Catalog.API/Controllers/ProductsController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Catalog.API/Controllers/ProductsController.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Catalog.API/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Catalog.API/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Catalog.Infrastructure/Persistence/ApplicationDbContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Catalog.Infrastructure/Persistence/ApplicationDbContext.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Catalog.UnitTests/ProductTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Catalog.UnitTests/ProductTests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Catalog.Application/Services/IProductService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Catalog.Application/Services/IProductService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Catalog.Infrastructure/Repositories/ProductRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Catalog.Infrastructure/Repositories/ProductRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Catalog.Infrastructure/Services/ProductService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Catalog.Infrastructure/Services/ProductService.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -266,6 +268,12 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="mock:///Immediate Window" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///Immediate Window" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///Immediate Window" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///Immediate Window" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///Immediate Window" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///Immediate Window" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/0312935919db7cc74f06af44de2d6f65470c519bbcbf7b7e4f71dc226e406e/EntityType.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/32af53f9addbd8407e5f571f6439ce341f8ba46c7f085f2d1c1aa4c2bd1d35/ModelValidator.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/ce37be1a06b16c6faa02038d2cc477dd3bca5b217ceeb41c5f2ad45c1bf9/ServiceProvider.cs" root0="FORCE_HIGHLIGHTING" />
@@ -296,6 +304,7 @@
     <setting file="file://$PROJECT_DIR$/src/Catalog.Infrastructure/Persistence/Configurations/ProductConfiguration.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/Catalog.Infrastructure/Persistence/DapperContext.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/Catalog.Infrastructure/Repositories/ProductRepository.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/Asus/RiderProjects/Catalog/src/Catalog.Infrastructure/Repositories/ProductRepository.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/Catalog.Infrastructure/Services/CacheInvalidationService.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/Catalog.Infrastructure/Services/DistributedCacheService.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/Catalog.Infrastructure/Services/ProductService.cs" root0="FORCE_HIGHLIGHTING" />
@@ -383,7 +392,9 @@
       <workItem from="1766589970108" duration="4039000" />
       <workItem from="1766605010384" duration="10993000" />
       <workItem from="1766656236209" duration="13174000" />
-      <workItem from="1766672564070" duration="327000" />
+      <workItem from="1766672564070" duration="1053000" />
+      <workItem from="1766693374491" duration="1143000" />
+      <workItem from="1766694621427" duration="4585000" />
     </task>
     <task id="LOCAL-00001" summary="Initial test1 commit">
       <option name="closed" value="true" />
@@ -401,7 +412,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766662060465</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Final commit">
+      <option name="closed" value="true" />
+      <created>1766672933463</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1766672933463</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -413,7 +432,8 @@
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
     <MESSAGE value="Initial test1 commit" />
     <MESSAGE value="Redis-connection commit" />
-    <option name="LAST_COMMIT_MESSAGE" value="Redis-connection commit" />
+    <MESSAGE value="Final commit" />
+    <option name="LAST_COMMIT_MESSAGE" value="Final commit" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

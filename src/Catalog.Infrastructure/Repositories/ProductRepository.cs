@@ -19,16 +19,16 @@ public class ProductRepository : IProductRepository
         _logger = logger;
     }
     
-    public async Task<IEnumerable<Product>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<Product>> GetAllAsync(CancellationToken cancellationToken)
     {
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
             _logger.LogDebug("Getting all products");
+            
         
             return await _context.Products
                 .Include(p => p.Category)
-                .AsNoTracking()
                 .ToListAsync(cancellationToken);
 
         }

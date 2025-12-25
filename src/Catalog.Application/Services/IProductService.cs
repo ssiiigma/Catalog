@@ -4,7 +4,7 @@ namespace Catalog.Application.Services;
 
 public interface IProductService
 {
-    Task<IEnumerable<Product>> GetProductsAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<Product>> GetProductsAsync();
     Task<Product?> GetProductAsync(Guid id, CancellationToken cancellationToken = default);
     Task<Product> CreateProductAsync(Product product, CancellationToken cancellationToken = default);
     Task<Product?> UpdateProductAsync(Guid id, Product product, CancellationToken cancellationToken = default);

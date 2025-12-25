@@ -21,11 +21,11 @@ public class ProductService : IProductService
         _logger = logger;
     }
     
-    public async Task<IEnumerable<Product>> GetProductsAsync(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<Product>> GetProductsAsync()
     {
         const string cacheKey = "products_all";
         
-        var cachedProducts = await _cacheService.GetAsync<List<Product>>(cacheKey, cancellationToken);
+        var cachedProducts = await _cacheService.GetAsync<List<Product>>(cacheKey, new CancellationToken(false));
         if (cachedProducts != null)
         {
             _logger.LogDebug("Products retrieved from cache");
@@ -33,11 +33,11 @@ public class ProductService : IProductService
         }
         
         _logger.LogDebug("Fetching products from database");
-        var products = (await _productRepository.GetAllAsync(cancellationToken)).ToList();
+        var products = (await _productRepository.GetAllAsync(new CancellationToken(false))).ToList();
         
         if (products.Any())
         {
-            await _cacheService.SetAsync(cacheKey, products, TimeSpan.FromMinutes(2), cancellationToken);
+            await _cacheService.SetAsync(cacheKey, products, TimeSpan.FromMinutes(2), new CancellationToken(false));
             _logger.LogDebug("Products cached for 2 minutes");
         }
         

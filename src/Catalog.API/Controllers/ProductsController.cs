@@ -1,7 +1,5 @@
-﻿using Catalog.Application.Products.Commands;
-using Catalog.Application.Products.Queries;
-using MediatR;
-using Microsoft.AspNetCore.Authorization;
+﻿using Catalog.Application.Services;
+using Catalog.Core.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Catalog.API.Controllers;
@@ -10,51 +8,141 @@ namespace Catalog.API.Controllers;
 [Route("api/[controller]")]
 public class ProductsController : ControllerBase
 {
-    private readonly IMediator _mediator;
+    private readonly IProductService _productService;
+    private readonly ILogger<ProductsController> _logger;
     
-    public ProductsController(IMediator mediator)
+    public ProductsController(
+        IProductService productService,
+        ILogger<ProductsController> logger)
     {
-        _mediator = mediator;
+        _productService = productService;
+        _logger = logger;
     }
     
     [HttpGet]
-    [AllowAnonymous]
-    public async Task<IActionResult> GetProducts([FromQuery] GetProductsQuery query)
+    public async Task<ActionResult<IEnumerable<Product>>> GetProducts(CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(query);
-        return Ok(result);
+        _logger.LogInformation("Getting all products");
+        
+        try
+        {
+            var products = await _productService.GetProductsAsync(cancellationToken);
+            return Ok(products);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting products");
+            return StatusCode(500, "Internal server error");
+        }
     }
     
     [HttpGet("{id:guid}")]
-    [AllowAnonymous]
-    public async Task<IActionResult> GetProduct(Guid id)
+    public async Task<ActionResult<Product>> GetProduct(Guid id, CancellationToken cancellationToken)
     {
-        var product = await _mediator.Send(new GetProductByIdQuery(id));
-        return product != null ? Ok(product) : NotFound();
+        _logger.LogInformation("Getting product with ID: {Id}", id);
+        
+        try
+        {
+            var product = await _productService.GetProductAsync(id, cancellationToken);
+            
+            if (product == null)
+            {
+                _logger.LogWarning("Product {Id} not found", id);
+                return NotFound();
+            }
+            
+            return Ok(product);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting product {Id}", id);
+            return StatusCode(500, "Internal server error");
+        }
     }
     
     [HttpPost]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> CreateProduct(CreateProductCommand command)
+    public async Task<ActionResult<Product>> CreateProduct(
+        [FromBody] Product product,
+        CancellationToken cancellationToken)
     {
-        var productId = await _mediator.Send(command);
-        return CreatedAtAction(nameof(GetProduct), new { id = productId }, productId);
+        _logger.LogInformation("Creating new product");
+        
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid product data received");
+                return BadRequest(ModelState);
+            }
+            
+            var createdProduct = await _productService.CreateProductAsync(product, cancellationToken);
+            
+            return CreatedAtAction(
+                nameof(GetProduct),
+                new { id = createdProduct.Id },
+                createdProduct);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating product");
+            return StatusCode(500, "Internal server error");
+        }
     }
     
     [HttpPut("{id:guid}")]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> UpdateProduct(Guid id, UpdateProductCommand command)
+    public async Task<IActionResult> UpdateProduct(
+        Guid id,
+        [FromBody] Product product,
+        CancellationToken cancellationToken)
     {
-        if (id != command.Id) return BadRequest();
-        await _mediator.Send(command);
-        return NoContent();
+        _logger.LogInformation("Updating product {Id}", id);
+        
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid product data received for update");
+                return BadRequest(ModelState);
+            }
+            
+            var updatedProduct = await _productService.UpdateProductAsync(id, product, cancellationToken);
+            
+            if (updatedProduct == null)
+            {
+                _logger.LogWarning("Product {Id} not found for update", id);
+                return NotFound();
+            }
+            
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating product {Id}", id);
+            return StatusCode(500, "Internal server error");
+        }
     }
     
     [HttpDelete("{id:guid}")]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> DeleteProduct(Guid id)
+    public async Task<IActionResult> DeleteProduct(Guid id, CancellationToken cancellationToken)
     {
-        await _mediator.Send(new DeleteProductCommand { Id = id });
-        return NoContent();
+        _logger.LogInformation("Deleting product {Id}", id);
+        
+        try
+        {
+            var deleted = await _productService.DeleteProductAsync(id, cancellationToken);
+            
+            if (!deleted)
+            {
+                _logger.LogWarning("Product {Id} not found for deletion", id);
+                return NotFound();
+            }
+            
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting product {Id}", id);
+            return StatusCode(500, "Internal server error");
+        }
     }
 }

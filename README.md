@@ -1,4 +1,4 @@
-RESTful Web API for managing a product catalog with CRUD functionality and JWT authentication.
+RESTful Web API for managing a product catalog with full CRUD functionality, JWT authentication, and Redis caching.
 
 1) Database configuration (MySQL Workbench)
 
@@ -14,6 +14,8 @@ RESTful Web API for managing a product catalog with CRUD functionality and JWT a
     - Health Check: http://localhost:5184/health
 
     - Test API: http://localhost:5184/api/test
+
+    - Test Redis: http://localhost:5184/api/cache-test
 
 3) Main Product Endpoints
 
@@ -32,9 +34,7 @@ RESTful Web API for managing a product catalog with CRUD functionality and JWT a
 {
 
     "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Port=3306;Database=my_app_db;User=app_user;Password=SecurePass123!;Charset=utf8mb4;"
-    },
-    "JwtSettings": {
-    "Key": "YourSuperSecretKeyForJWTTokenGeneration_Minimum32Chars!"
+    "DefaultConnection": "Server=localhost;Port=3306;Database=my_app_db;User=app_user;Password=SecurePass123!;Charset=utf8mb4;",
+    "Redis": "localhost:6379,abortConnect=false,connectTimeout=5000"
     }
 }

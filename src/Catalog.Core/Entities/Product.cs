@@ -4,9 +4,9 @@ namespace Catalog.Core.Entities;
 
 public class Product : BaseEntity
 {
-    public string Name { get; private set; } = null!;
-    public string Description { get; private set; } = string.Empty;
-    public Money Price { get; private set; } = null!;
+    public string Name { get; set; } = null!;
+    public string Description { get; set; } = string.Empty;
+    public Money Price { get; set; } = null!;
     public int StockQuantity { get; private set; }
     public string Category { get; private set; } = null!;
     public string Sku { get; private set; } = null!;

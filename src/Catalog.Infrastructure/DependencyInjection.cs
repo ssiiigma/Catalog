@@ -1,5 +1,6 @@
 ﻿using Catalog.Application.Interfaces;
 using Catalog.Infrastructure.Persistence;
+using Catalog.Infrastructure.Repositories;
 using Catalog.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -49,6 +50,7 @@ public static class DependencyInjection
 
         services.AddSingleton<ICacheService, RedisCacheService>();
         services.AddSingleton<ICacheInvalidationService, CacheInvalidationService>();
+        services.AddScoped<IProductRepository, ProductRepository>();
 
         return services;
     }
